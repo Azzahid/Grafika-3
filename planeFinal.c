@@ -23,7 +23,8 @@ int tx = 600;
 pthread_t t_ufo;
 pthread_t t_bullet;
 int command = 0;
-
+int rotatex(int x, int y, int angle, int cx, int cy);
+int rotatey(int x, int y, int angle, int cx, int cy);
 
 int check_color(int x, int y, int color) {
 	int same = 0;
@@ -217,13 +218,13 @@ void printBackground (){
 		}
 	 }
 
-	 drawPolygon(tx,700, 300);
-	 for (int i = 0; i < 50; i++){
-		 int x = rand() % 1360; 
-		 int y = rand() % 700;
-		 //printf("(%d, %d)\n", x, y);
-		 drawPoint(x, y, 50);
-	 }
+	 // drawPolygon(tx,700, 300);
+	 // for (int i = 0; i < 50; i++){
+		//  int x = rand() % 1360; 
+		//  int y = rand() % 700;
+		//  //printf("(%d, %d)\n", x, y);
+		//  drawPoint(x, y, 50);
+	 // }
 
 	 // for (int i = 0; i < 50; i++){
 		//  int x = rand() % 1360; 
@@ -357,6 +358,10 @@ void drawAntena(int xc, int rc,int yc, int rj, int color){
 	drawCircle(rj/2,xc+45,yc-25,1,color);
 }
 
+void rotateantena(int xl1, int xl2, int yl1, int yl2, int color){
+	drawGaris(xl1,xl2,yl1,yl2,color);
+}
+
 void drawAtap(int xc, int rc, int yc, int rj, int color){
 	//Atap UFO
 	drawCircle(rc,xc,yc,0,color);
@@ -391,13 +396,28 @@ void drawUFO(int xc, int rc, int yc,int rj, int color){
 }
 
 void explosionMove(int xc, int yc, int yf, int color, int rc, int rj){
+	int angle = 0;
 	for (int y = yc; y < yf; y++){
-		drawExplosion(xc, y, color);
-		drawExplosion(xc-50, y, color);
-		drawExplosion(xc+50, y, color);
-		drawAntena(xc-100,rc,yc,rj,color);
-		drawAtap(xc,rc,yc+50,rj,color);
-		drawBadan(xc-300,rc,yc+150,rj,color);
+		int xl1 = rotatex(xc-45, y-25, angle, xc, y);
+		int yl1 = rotatey(xc-45, y-25, angle, xc, y);
+		int xl2 = rotatex(xc-30, y-15, angle, xc, y);
+		int yl2 = rotatey(xc-30, y-15, angle, xc, y);
+		//drawExplosion(xc, y, color);
+		//drawExplosion(xc-50, y, color);
+		//drawExplosion(xc+50, y, color);
+		rotateantena(xl1,xl2,yl1,yl2,color);
+		drawPoint(xc, y, 200);
+		drawPoint(xl1, yl1, 50);
+		drawPoint(xl2, yl2, 50);
+		//drawPoint(xc-45, y-25, 100);
+		//drawPoint(xc-30, y-5, 100);
+		getch();
+		//drawAtap(xc,rc,yc+50,rj,color);
+		//drawBadan(xc-300,rc,yc+150,rj,color);
+		angle +=1;
+		if(angle >= 360){
+			angle = 0;
+		}
 		usleep(100);
 		printBackground();
 	}
@@ -519,9 +539,7 @@ void moveUFO(int rc, int yc, int rj, int sX, int fX, int color){
 		xc = rotatex(ax, ay, angle, x, y);
 		yc = rotatey(ax, ay, angle, x, y);
 		ufo = xc;
-		drawPoint(xc, yc, 50);
-		drawPoint(ax, ay, 50);
-		drawPoint(x, y, 100);
+		
 		usleep(10000);
 		printBackground();
 
