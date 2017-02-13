@@ -8,6 +8,7 @@
  #include <math.h>
  #include <pthread.h>
 #include "conio.h"
+#define PI 3.14159265
 
 int fbfd = 0;
 struct fb_var_screeninfo vinfo;
@@ -21,7 +22,8 @@ int destroy = 0;
 int tx = 600;
 pthread_t t_ufo;
 pthread_t t_bullet;
- int command = 0;
+int command = 0;
+
 
 int check_color(int x, int y, int color) {
 	int same = 0;
@@ -364,7 +366,7 @@ void drawUFO(int xc, int rc, int yc,int rj, int color){
 	
 	//Badan UFO
 	drawLine(xc-rc,xc+rc,yc+0.5*rc,yc+0.5*rc,0,color);
-	drawLine(xc-1.5*rc,xc+1.5*rc,yc+50,100,0,color);
+	drawLine(xc-1.5*rc,xc+1.5*rc,yc+50,yc+50,0,color);
 	drawLine(xc+rc,xc+75,yc+0.5*rc,yc+50,100,color);
 	drawLine(xc+rc,xc+60,yc+50,yc+65,100,color);
 
@@ -433,6 +435,26 @@ void *controller(void *args){
 	}
 }
 
+int rotatex(int x, int y, int angle, int cx, int cy){
+	double val = PI / 180;
+	double rad = (double)angle *val;
+	double s = sin(rad);
+	double c = cos(rad);
+	x -=cx ;
+	y -= cy;
+	return(x*c - y*s)+cx;
+}
+
+int rotatey(int x, int y, int angle, int cx, int cy){
+	double val = PI / 180;
+	double rad = (double)angle *val;
+	double s = sin(rad);
+	double c = cos(rad);
+	x -=cx ;
+	y -= cy;
+	return(x*c + y*s)+cy;
+}
+
 void moveUFO(int rc, int yc, int rj, int sX, int fX, int color){
 /* rc = jari-jari atap UFO; yc = pusat lingkaran atap UFO di sumbu Y;
  * rj = jar-jari jendela UFO; 
@@ -441,19 +463,24 @@ void moveUFO(int rc, int yc, int rj, int sX, int fX, int color){
  * Prosedur untuk menggerakkan UFO*/
  
 	int xc=sX;
+	int ax = xc;
+	int ay = yc;
+	int angle = 0;
 	while (xc!=fX){
-		drawUFO(xc,rc,yc,rj,color);
-		usleep(30000);
-		printBackground();
-
-		if (sX>fX) {
-			xc--;
-			
+		if(angle < 360){
+			angle++;
+		}else{
+			angle = 0;
 		}
-		else {
-			xc++;	
-		}
+		int x = vinfo.xres/2;
+		int y = vinfo.yres/2;
+		xc = rotatex(ax, ay, angle, x, y);
+		yc = rotatey(ax, ay, angle, x, y);
 		ufo = xc;
+		drawUFO(xc,rc,yc,rj,color);
+		printBackground();
+		usleep(3000);
+
 		
 		if (destroy == 1){
 			drawUFO(xc,rc,yc,rj,color);
@@ -504,7 +531,7 @@ int main()
 
 	 int xc=700; 
 	 int rc = 50;
-	 int yc= 50;
+	 int yc= 400;
 	 int rj=8, yj=60;
 	 
 	 printf("Before Thread\n");
@@ -512,7 +539,7 @@ int main()
 	 printBackground();
 	
 	 while (destroy != 1){
-		moveUFO(rc,yc,rj,1300,0,100);
+		moveUFO(rc,(vinfo.yres/2)+100,rj,(vinfo.xres/2) + 100,0,100);
 		
 		if(command == 1) {
 			break;
