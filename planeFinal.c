@@ -438,8 +438,12 @@ void *controller(void *args){
 				case 'B':
 					// code for arrow down
 					command = 1;
+
 					break;				
 			}
+		}
+		if(command ==1||destroy==1){
+			break;
 		}
 	}
 }
@@ -466,13 +470,14 @@ void moveUFO(int rc, int yc, int rj, int sX, int fX, int color){
 		}
 		ufo = xc;
 		
-		if (destroy == 1){
+		if (destroy == 1 || command == 1){
 			//drawUFO(xc,rc,yc,rj,color);
 			printBackground();
-			explosionMove(xc,yc+50, 660, 30);
-			drawAntena(xc-100,rc,yc,rj,color);
-			drawAtap(xc,rc,yc+50,rj,color);
-			drawBadan(xc-300,rc,yc+150,rj,color);
+			//explosionMove(xc,yc+50, 660, 30);
+			//drawAntena(xc-100,rc,yc,rj,color);
+			//drawAtap(xc,rc,yc+50,rj,color);
+			//drawBadan(xc-300,rc,yc+150,rj,color);
+			command = 1;
 			break;
 		}	
 	}   
@@ -527,8 +532,8 @@ int main()
 	
 	 while (destroy != 1){
 		moveUFO(rc,yc,rj,1300,0,100);
-		
 		if(command == 1) {
+			drawAntena(xc-100,rc,yc,rj,100);
 			break;
 		}
 	 }
