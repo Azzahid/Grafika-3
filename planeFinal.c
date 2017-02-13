@@ -46,6 +46,9 @@ int check_color(int x, int y, int color) {
 }
 
 void set_color(int x, int y, int color) {
+	if(x > vinfo.xres_virtual || x < 0 || y < 0 || y > vinfo.yres_virtual){
+				return;
+			}
 	location = (x+vinfo.xoffset) * (vinfo.bits_per_pixel/8) +
 		(y+vinfo.yoffset) * finfo.line_length;
 	if (vinfo.bits_per_pixel == 32) {
@@ -70,6 +73,7 @@ int flood_fill(int x, int y, int target_color, int replacement_color) {
 	} else if (check_color(x, y, target_color) == 0) {
 		return 0;
 	}
+
 	set_color(x, y, replacement_color);
 	flood_fill(x+1, y, target_color, replacement_color);
 	flood_fill(x-1, y, target_color, replacement_color);
@@ -88,6 +92,9 @@ void drawPoint(int xn, int yn, int color){
          for (x = xn; x < xn+4; x++) {
              location = (x+vinfo.xoffset) * (vinfo.bits_per_pixel/8) +
                         (y+vinfo.yoffset) * finfo.line_length;
+			if(x >= vinfo.xres_virtual || x <= 0 || y <= 0 || y >=vinfo.yres_virtual){
+				break;
+			}
 			if (color!=0){
 				if (vinfo.bits_per_pixel == 32) {
 					*(fbp + location) = color;        // Some blue
@@ -211,13 +218,19 @@ void printBackground (){
 	 }
 
 	 drawPolygon(tx,700, 300);
-
 	 for (int i = 0; i < 50; i++){
 		 int x = rand() % 1360; 
 		 int y = rand() % 700;
 		 //printf("(%d, %d)\n", x, y);
 		 drawPoint(x, y, 50);
 	 }
+
+	 // for (int i = 0; i < 50; i++){
+		//  int x = rand() % 1360; 
+		//  int y = rand() % 700;
+		//  //printf("(%d, %d)\n", x, y);
+		//  drawPoint(x, y, 50);
+	 // }
 }
 
 void drawGaris(int x1, int y1, int x2, int y2, int color){
@@ -342,9 +355,41 @@ void explosionMove(int xc, int yc, int yf, int color){
 		drawExplosion(xc, y, color);
 		drawExplosion(xc-50, y, color);
 		drawExplosion(xc+50, y, color);
+		drawAntena(xc-100,rc,yc,rj,color);
+		drawAtap(xc,rc,yc+50,rj,color);
+		drawBadan(xc-300,rc,yc+150,rj,color);
 		usleep(100);
 		printBackground();
 	}
+}
+
+	
+void drawAntena(int xc, int rc,int yc, int rj, int color){
+		//Antena UFO
+	drawLine(xc-45,xc-30,yc-25,yc-15,-90,color);
+	drawCircle(rj/2,xc-45,yc-25,1,color);
+	drawCircle(rj/2,xc+45,yc-25,1,color);
+}
+
+void drawAtap(int xc, int rc, int yc, int rj, int color){
+	//Atap UFO
+	drawCircle(rc,xc,yc,0,color);
+	drawCircle(rj,xc,yc+10,1,color);
+	drawCircle(rj,xc+30,yc+10,1,color);
+	drawCircle(rj,xc-30,yc+10,1,color);
+	drawGaris(xc-rc,yc+0.5*rc,xc+rc,yc+0.5*rc,color);
+	flood_fill(xc, yc, 0, color);
+}
+
+void drawBadan(int xc, int rc, int yc, int rj, int color){
+	//Badan UFO
+	drawGaris(xc-rc,yc+0.5*rc,xc+rc,yc+0.5*rc,color);
+	drawGaris(xc-1.5*rc,yc+50,xc+1.5*rc,yc+50,color);
+	drawGaris(xc+rc,yc+0.5*rc,xc+75,yc+50,color);
+	drawGaris(xc-rc,yc+0.5*rc,xc-75,yc+50,color);
+	drawGaris(xc+rc,yc+50,xc+60,yc+65,color);	
+	drawGaris(xc-rc,yc+50,xc-60,yc+65,color);	
+	flood_fill(xc, yc+40, 0, color);
 }
 
 void drawUFO(int xc, int rc, int yc,int rj, int color){
@@ -354,31 +399,14 @@ void drawUFO(int xc, int rc, int yc,int rj, int color){
  * Prosedur untuk bikin gambar UFO*/
   
 	//Antena UFO
-	drawLine(xc-45,xc-30,yc-25,yc-15,-90,color);
-	drawCircle(rj/2,xc-45,yc-25,1,color);
-	drawCircle(rj/2,xc+45,yc-25,1,color);
-	
-	//Atap UFO
-	drawCircle(rc,xc,yc,0,color);
-	drawCircle(rj,xc,yc+10,1,color);
-	drawCircle(rj,xc+30,yc+10,1,color);
-	drawCircle(rj,xc-30,yc+10,1,color);
-	
-	//Badan UFO
-	drawLine(xc-rc,xc+rc,yc+0.5*rc,yc+0.5*rc,0,color);
-	drawLine(xc-1.5*rc,xc+1.5*rc,yc+50,yc+50,0,color);
-	drawLine(xc+rc,xc+75,yc+0.5*rc,yc+50,100,color);
-	drawLine(xc+rc,xc+60,yc+50,yc+65,100,color);
-
-	flood_fill(xc, yc, 0, color);
-	flood_fill(xc, yc+40, 0, color-1000);
+	drawAntena(xc,rc,yc,rj,color-1000);
+	drawAtap(xc,rc,yc,rj,color);
+	drawBadan(xc,rc,yc,rj,color-2000);
 }
 
-
-
 void drawBullet(int xf, int yf){
-	int x = tx;
-	int y = 700;
+	int x = tx + 10;
+	int y = 690;
 	int deltax = abs(xf - x)/70;
 	int not_collision = 0;
 
@@ -432,6 +460,9 @@ void *controller(void *args){
 					break;				
 			}
 		}
+		if(command ==1||destroy==1){
+			break;
+		}
 	}
 }
 
@@ -452,7 +483,7 @@ int rotatey(int x, int y, int angle, int cx, int cy){
 	double c = cos(rad);
 	x -=cx ;
 	y -= cy;
-	return(x*c + y*s)+cy;
+	return(x*s + y*c)+cy;
 }
 
 void moveUFO(int rc, int yc, int rj, int sX, int fX, int color){
@@ -463,31 +494,45 @@ void moveUFO(int rc, int yc, int rj, int sX, int fX, int color){
  * Prosedur untuk menggerakkan UFO*/
  
 	int xc=sX;
+	bool arah = true;
 	int ax = xc;
 	int ay = yc;
 	int angle = 0;
+
 	while (xc!=fX){
-		if(angle < 360){
-			angle++;
+		//sleep(10);
+		if(angle > -180 && arah){
+			angle--;
 		}else{
-			angle = 0;
+			angle++;
+			arah = false;
+			if(angle>0){
+				arah = true;
+			}
 		}
+		
 		int x = vinfo.xres/2;
 		int y = vinfo.yres/2;
+		drawUFO(xc,rc,yc,rj,color);
+
 		xc = rotatex(ax, ay, angle, x, y);
 		yc = rotatey(ax, ay, angle, x, y);
 		ufo = xc;
-		drawUFO(xc,rc,yc,rj,color);
+		drawPoint(xc, yc, 50);
+		drawPoint(ax, ay, 50);
+		drawPoint(x, y, 100);
+		usleep(10000);
 		printBackground();
-		usleep(3000);
 
-		
-		if (destroy == 1){
+		if (destroy == 1 || command == 1){
 			drawUFO(xc,rc,yc,rj,color);
 			printBackground();
 			explosionMove(xc,yc+50, 660, 30);
+			
+			command = 1;
 			break;
 		}	
+			
 	}   
 }
 
@@ -539,7 +584,7 @@ int main()
 	 printBackground();
 	
 	 while (destroy != 1){
-		moveUFO(rc,(vinfo.yres/2)+100,rj,(vinfo.xres/2) + 100,0,100);
+		moveUFO(rc,(vinfo.yres/2),rj,(vinfo.xres/2)+350,0,100);
 		
 		if(command == 1) {
 			break;
@@ -548,6 +593,7 @@ int main()
 	 
 	 
      pthread_join(t_bullet, NULL);
+     sleep(1);
 	 munmap(fbp, screensize);
      close(fbfd);
      return 0;
