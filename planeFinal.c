@@ -350,20 +350,6 @@ void drawExplosion(int xc, int yc, int color){
 	}
 }
 
-void explosionMove(int xc, int yc, int yf, int color){
-	for (int y = yc; y < yf; y++){
-		drawExplosion(xc, y, color);
-		drawExplosion(xc-50, y, color);
-		drawExplosion(xc+50, y, color);
-		drawAntena(xc-100,rc,yc,rj,color);
-		drawAtap(xc,rc,yc+50,rj,color);
-		drawBadan(xc-300,rc,yc+150,rj,color);
-		usleep(100);
-		printBackground();
-	}
-}
-
-	
 void drawAntena(int xc, int rc,int yc, int rj, int color){
 		//Antena UFO
 	drawLine(xc-45,xc-30,yc-25,yc-15,-90,color);
@@ -403,6 +389,21 @@ void drawUFO(int xc, int rc, int yc,int rj, int color){
 	drawAtap(xc,rc,yc,rj,color);
 	drawBadan(xc,rc,yc,rj,color-2000);
 }
+
+void explosionMove(int xc, int yc, int yf, int color, int rc, int rj){
+	for (int y = yc; y < yf; y++){
+		drawExplosion(xc, y, color);
+		drawExplosion(xc-50, y, color);
+		drawExplosion(xc+50, y, color);
+		drawAntena(xc-100,rc,yc,rj,color);
+		drawAtap(xc,rc,yc+50,rj,color);
+		drawBadan(xc-300,rc,yc+150,rj,color);
+		usleep(100);
+		printBackground();
+	}
+}
+
+
 
 void drawBullet(int xf, int yf){
 	int x = tx + 10;
@@ -527,7 +528,7 @@ void moveUFO(int rc, int yc, int rj, int sX, int fX, int color){
 		if (destroy == 1 || command == 1){
 			drawUFO(xc,rc,yc,rj,color);
 			printBackground();
-			explosionMove(xc,yc+50, 660, 30);
+			explosionMove(xc,yc+50, 660, 30, rc, rj);
 			
 			command = 1;
 			break;
