@@ -370,7 +370,7 @@ void rotateBadan(int rc,int xc, int y, int angle, int color){
 	drawGaris(xl1,yl1,xl6, yl6,color);
 	drawGaris(xl7, yl7,xl8,yl8,color);	
 	drawGaris(xl9, yl9, xl10, yl10,color);
-	sflood_fill(xl0, yl0, 0, color);	
+	flood_fill(xl0, yl0, 0, color);	
 
 }
 
@@ -399,7 +399,7 @@ void drawBadan(int xc, int rc, int yc, int rj, int color){
 	drawGaris(xc-rc,yc+0.5*rc,xc-75,yc+50,color);
 	drawGaris(xc+rc,yc+50,xc+60,yc+65,color);	
 	drawGaris(xc-rc,yc+50,xc-60,yc+65,color);	
-	//flood_fill(xc, yc+40, 0, color);
+	flood_fill(xc, yc+40, 0, color);
 }
 
 void drawUFO(int xc, int rc, int yc,int rj, int color){
@@ -420,6 +420,10 @@ void explosionMove(int xc, int yc, int yf, int color, int rc, int rj){
 	int yant = yc;
 	int xbody = xc;
 	int ybody = yc;
+	int ysum = 0;
+	int yzig = 0;
+	int xsum = 0;
+	int xzig = 1;
 
 	for (int y = yc; y < yf; y++){
 		
@@ -427,8 +431,10 @@ void explosionMove(int xc, int yc, int yf, int color, int rc, int rj){
 		drawExplosion(xc, y, color);
 		drawExplosion(xc-100, y, color);
 		drawExplosion(xc+100, y, color);
-		rotateantena(rj, xant,yant,angle,color);
+		rotateantena(rj, xant,yant,angle,color+300);
 		xant--;
+		//int tempx = rotatex(xc,y,angle,xc-10,y-15);
+		//int tempy = rotatey(xc,y,angle,xc-10,y-15);
 		if(yant < yf-10){
 			yant++;
 		}
@@ -436,8 +442,17 @@ void explosionMove(int xc, int yc, int yf, int color, int rc, int rj){
 		if(ybody < yf-10){
 			ybody++;
 		}
-
-		rotateBadan(rc, xbody, ybody, 45, color);
+		
+		drawAtap(xc+200+xsum,rc,y+ysum,rj,color+100);
+		if(y+ysum > vinfo.yres/2){
+			yzig = -3;
+		}
+		else if(y+ysum < vinfo.yres/3){
+			yzig = 1;
+		}
+		ysum += yzig;
+		xsum += xzig;
+		rotateBadan(rc, xbody, ybody, 45, color+200);
 		usleep(100);
 		printBackground();
 		if(angle >=360){
