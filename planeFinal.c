@@ -24,11 +24,16 @@ pthread_t t_ufo;
 pthread_t t_bullet;
 int command = 0;
 
+int rotatex(int x, int y, int angle, int cx, int cy);
+int rotatey(int x, int y, int angle, int cx, int cy);
 
 int check_color(int x, int y, int color) {
 	int same = 0;
 	location = (x+vinfo.xoffset) * (vinfo.bits_per_pixel/8) +
 		(y+vinfo.yoffset) * finfo.line_length;
+	if(x >= vinfo.xres_virtual || x <= 0 || y <= 0 || y >=vinfo.yres_virtual){
+				return 0;
+			}
 	if (vinfo.bits_per_pixel == 32) {
 		if (*(fbp + location) == color) {
 			same = 1;
@@ -309,45 +314,64 @@ void drawExplosion(int xc, int yc, int color){
 		drawGaris(xc-2,yc+38,xc+15,yc+20,color); //14
 		
 		flood_fill(xc, yc, 0, color);
-		/*//jeda untuk ledakan
-		
-		//Middle explosion
-		drawGaris(xc+20,yc+40,xc+80,yc+65,color); //1
-		drawGaris(xc+80,yc+65,xc+45,yc+12,color); //2
-		drawGaris(xc+45,yc+12,xc+63,yc-5,color); //3
-		drawGaris(xc+63,yc-5,xc+35,yc-17,color); //4
-		drawGaris(xc+35,yc-17,xc+40,yc-60,color); //5
-		drawGaris(xc+40,yc-60,xc,yc-32,color); //6
-		drawGaris(xc,yc-32,xc-13,yc-43,color); //7
-		drawGaris(xc-13,yc-43,xc-25,yc-17,color); //8
-		drawGaris(xc-25,yc-17,xc-65,yc-26,color); //9
-		drawGaris(xc-65,yc-26,xc-52,yc+4,color); //10
-		drawGaris(xc-52,yc+4,xc-70,yc+15,color); //11
-		drawGaris(xc-70,yc+15,xc-18,yc+39,color); //12
-		drawGaris(xc-18,yc+39,xc-8,yc+57,color); //13
-		drawGaris(xc-8,yc+57,xc+20,yc+40,color); //14
-		
-		//jeda untuk ledakan
-		
-		//Outer explosion
-		drawGaris(xc+25,yc+60,xc+110,yc+95,color); //1
-		drawGaris(xc+110,yc+95,xc+60,yc+10,color); //2
-		drawGaris(xc+60,yc+10,xc+85,yc-10,color); //3
-		drawGaris(xc+85,yc-10,xc+45,yc-22,color); //4
-		drawGaris(xc+45,yc-22,xc+52,yc-72,color); //5
-		drawGaris(xc+52,yc-72,xc,yc-48,color); //6
-		drawGaris(xc,yc-48,xc-18,yc-62,color); //7
-		drawGaris(xc-18,yc-62,xc-34,yc-24,color); //8
-		drawGaris(xc-34,yc-24,xc-80,yc-38,color); //9
-		drawGaris(xc-80,yc-38,xc-65,yc+4,color); //10
-		drawGaris(xc-65,yc+4,xc-87,yc+18,color); //11
-		drawGaris(xc-87,yc+18,xc-20,yc+45,color); //12
-		drawGaris(xc-20,yc+45,xc-10,yc+70,color); //13
-		drawGaris(xc-10,yc+70,xc+25,yc+60,color); //14
-		
-		//looping
-		usleep(1000000);*/
 	}
+}
+
+void rotateantena(int rj,int xc, int y, int angle, int color){
+	int xl1 = rotatex(xc-105, y-25, angle, xc, y);
+	int yl1 = rotatey(xc-105, y-25, angle, xc, y);
+	int xl2 = rotatex(xc-90, y-15, angle, xc, y);
+	int yl2 = rotatey(xc-90, y-15, angle, xc, y);
+	drawGaris(xl1,yl1,xl2,yl2,color);
+	drawGaris(xl1+105,yl1,xl2+105,yl2,color);
+	drawCircle(rj/2, xl1, yl1, 1, color);
+	drawCircle(rj/2, xl1+105, yl1, 1, color);
+
+}
+void rotateatap(int rj,int xc, int y, int angle, int color){
+	int xl1 = rotatex(xc-105, y-25, angle, xc, y);
+	int yl1 = rotatey(xc-105, y-25, angle, xc, y);
+	int xl2 = rotatex(xc-90, y-15, angle, xc, y);
+	int yl2 = rotatey(xc-90, y-15, angle, xc, y);
+	drawGaris(xl1,yl1,xl2,yl2,color);
+	drawGaris(xl1+105,yl1,xl2+105,yl2,color);
+	drawCircle(rj/2, xl1, yl1, 1, color);
+	drawCircle(rj/2, xl1+105, yl1, 1, color);
+
+}
+
+void rotateBadan(int rc,int xc, int y, int angle, int color){
+	int xl0 = rotatex(xc, y+40, angle, xc, y+rc);
+	int yl0 = rotatey(xc, y+40, angle, xc, y+rc);
+	int xl1 = rotatex(xc-rc, y+0.5*rc, angle, xc, y+rc);
+	int yl1 = rotatey(xc-rc, y+0.5*rc, angle, xc, y+rc);
+	int xl2 = rotatex(xc+rc, y+0.5*rc, angle, xc, y+rc);
+	int yl2 = rotatey(xc+rc, y+0.5*rc, angle, xc, y+rc);
+	int xl3 = rotatex(xc-1.5*rc,y+50, angle, xc, y+rc);
+	int yl3 = rotatey(xc-1.5*rc,y+50, angle, xc, y+rc);
+	int xl4 = rotatex(xc+1.5*rc,y+50, angle, xc, y+rc);
+	int yl4 = rotatey(xc+1.5*rc,y+50, angle, xc, y+rc);
+	int xl5 = rotatex(xc+75,y+50, angle, xc, y+rc);
+	int yl5 = rotatey(xc+75,y+50, angle, xc, y+rc);
+	int xl6 = rotatex(xc-75,y+50, angle, xc, y+rc);
+	int yl6 = rotatey(xc-75,y+50, angle, xc, y+rc);
+	int xl7 = rotatex(xc+rc,y+50, angle, xc, y+rc);
+	int yl7 = rotatey(xc+rc,y+50, angle, xc, y+rc);
+	int xl8 = rotatex(xc+60,y+65, angle, xc, y+rc);
+	int yl8 = rotatey(xc+60,y+65, angle, xc, y+rc);
+	int xl9 = rotatex(xc-rc,y+50, angle, xc, y+rc);
+	int yl9 = rotatey(xc-rc,y+50, angle, xc, y+rc);
+	int xl10 = rotatex(xc-60,y+65, angle, xc, y+rc);
+	int yl10 = rotatey(xc-60,y+65, angle, xc, y+rc);
+
+	drawGaris(xl1,yl1,xl2,yl2,color);
+	drawGaris(xl3,yl3,xl4, yl4,color);
+	drawGaris(xl2,yl2,xl5, yl5,color);
+	drawGaris(xl1,yl1,xl6, yl6,color);
+	drawGaris(xl7, yl7,xl8,yl8,color);	
+	drawGaris(xl9, yl9, xl10, yl10,color);
+	sflood_fill(xl0, yl0, 0, color);	
+
 }
 
 void drawAntena(int xc, int rc,int yc, int rj, int color){
@@ -375,7 +399,7 @@ void drawBadan(int xc, int rc, int yc, int rj, int color){
 	drawGaris(xc-rc,yc+0.5*rc,xc-75,yc+50,color);
 	drawGaris(xc+rc,yc+50,xc+60,yc+65,color);	
 	drawGaris(xc-rc,yc+50,xc-60,yc+65,color);	
-	flood_fill(xc, yc+40, 0, color);
+	//flood_fill(xc, yc+40, 0, color);
 }
 
 void drawUFO(int xc, int rc, int yc,int rj, int color){
@@ -391,15 +415,36 @@ void drawUFO(int xc, int rc, int yc,int rj, int color){
 }
 
 void explosionMove(int xc, int yc, int yf, int color, int rc, int rj){
+	int angle = 0; 
+	int xant = xc;
+	int yant = yc;
+	int xbody = xc;
+	int ybody = yc;
+
 	for (int y = yc; y < yf; y++){
+		
+
 		drawExplosion(xc, y, color);
-		drawExplosion(xc-50, y, color);
-		drawExplosion(xc+50, y, color);
-		drawAntena(xc-100,rc,yc,rj,color);
-		drawAtap(xc,rc,yc+50,rj,color);
-		drawBadan(xc-300,rc,yc+150,rj,color);
+		drawExplosion(xc-100, y, color);
+		drawExplosion(xc+100, y, color);
+		rotateantena(rj, xant,yant,angle,color);
+		xant--;
+		if(yant < yf-10){
+			yant++;
+		}
+		xbody++;
+		if(ybody < yf-10){
+			ybody++;
+		}
+
+		rotateBadan(rc, xbody, ybody, 45, color);
 		usleep(100);
 		printBackground();
+		if(angle >=360){
+			angle = 0;
+		}else{
+			angle++;
+		}
 	}
 }
 
