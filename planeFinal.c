@@ -24,6 +24,12 @@ pthread_t t_ufo;
 pthread_t t_bullet;
 int command = 0;
 
+//Untuk menentukan apakah peluru meledak atau tidak
+int startX = 0;
+int endX = 0;
+int startY = 0;
+int endY = 0;
+
 int rotatex(int x, int y, int angle, int cx, int cy);
 int rotatey(int x, int y, int angle, int cx, int cy);
 
@@ -469,7 +475,6 @@ void drawBullet(int xf, int yf){
 	int x = tx + 10;
 	int y = 690;
 	int deltax = abs(xf - x)/70;
-	int not_collision = 0;
 
 	if (xf < x) {
 		deltax *= -1;
@@ -482,8 +487,8 @@ void drawBullet(int xf, int yf){
 	drawLine(x,tempx,y,tempy,0,0);
 	
 	while(tempy > yf && x > 0 && x < 1362) {
-		not_collision = check_color(tempx+deltax, tempy-15, 100);
-		if (not_collision == 1) {
+		//not_collision = check_color(tempx+deltax, tempy-15, 100);
+		if ((x > startX)&&(x < endX)&&(y > startY)&&(y < endY)) {
 			destroy = 1;
 			break;
 		}
@@ -549,18 +554,29 @@ int rotatey(int x, int y, int angle, int cx, int cy){
 
 void moveUFO(int rc, int yc, int rj, int sX, int fX, int color){
 /* rc = jari-jari atap UFO; yc = pusat lingkaran atap UFO di sumbu Y;
- * rj = jar-jari jendela UFO; 
+ * rj = jari-jari jendela UFO; 
  * sX = titik awal pergerakan UFO (koordinat X jari-jari atap UFO di posisi pertama);
  * fX = titik terakhir pergerakan UFO (koordinat X jari-jari atap UFO di posisi terakhir);
  * Prosedur untuk menggerakkan UFO*/
  
 	int xc=sX;
+
+
+
 	bool arah = true;
 	int ax = xc;
 	int ay = yc;
 	int angle = 0;
 
 	while (xc!=fX){
+
+		//Menentukan lokasi ufo untuk ledakan
+		startX = xc - rc;
+		endX= xc + rc;
+		startY = yc - rc;
+		endY = yc + rc;
+		//==================================
+
 		//sleep(10);
 		if(angle > -180 && arah){
 			angle--;
