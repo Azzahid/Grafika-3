@@ -430,13 +430,16 @@ void explosionMove(int xc, int yc, int yf, int color, int rc, int rj){
 	int yzig = 0;
 	int xsum = 0;
 	int xzig = 1;
-
+	
+	int explode_init_range = 0;
+	int bounce_naturally_setter  = 0;
 	for (int y = yc; y < yf; y++){
-		
-
-		drawExplosion(xc, y, color);
-		drawExplosion(xc-100, y, color);
-		drawExplosion(xc+100, y, color);
+		if (explode_init_range < 100){
+			drawExplosion(xc, y, color);
+			drawExplosion(xc-explode_init_range, y, color);
+			drawExplosion(xc+explode_init_range, y, color);
+			explode_init_range++;
+		}
 		rotateantena(rj, xant,yant,angle,color+300);
 		xant--;
 		//int tempx = rotatex(xc,y,angle,xc-10,y-15);
@@ -452,14 +455,18 @@ void explosionMove(int xc, int yc, int yf, int color, int rc, int rj){
 		drawAtap(xc+200+xsum,rc,y+ysum,rj,color+100);
 		if(y+ysum > vinfo.yres/2){
 			yzig = -3;
+			if (bounce_naturally_setter < 0) bounce_naturally_setter = 0;
+			bounce_naturally_setter += 4;
 		}
 		else if(y+ysum < vinfo.yres/3){
+			if (bounce_naturally_setter > 0) bounce_naturally_setter = 0;
+			bounce_naturally_setter = 1;
 			yzig = 1;
 		}
 		ysum += yzig;
 		xsum += xzig;
 		rotateBadan(rc, xbody, ybody, 45, color+200);
-		usleep(100);
+		usleep(100*bounce_naturally_setter);
 		printBackground();
 		if(angle >=360){
 			angle = 0;
@@ -595,9 +602,9 @@ void moveUFO(int rc, int yc, int rj, int sX, int fX, int color){
 		xc = rotatex(ax, ay, angle, x, y);
 		yc = rotatey(ax, ay, angle, x, y);
 		ufo = xc;
-		drawPoint(xc, yc, 50);
-		drawPoint(ax, ay, 50);
-		drawPoint(x, y, 100);
+		//drawPoint(xc, yc, 50);
+		//drawPoint(ax, ay, 50);
+		//drawPoint(x, y, 100);
 		usleep(10000);
 		printBackground();
 
