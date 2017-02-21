@@ -37,10 +37,10 @@ int rotatey(int x, int y, int angle, int cx, int cy);
 
 typedef int OutCode;
 
-const int ymin = 300;
-const int ymax = 500;
+const int ymin = 100;
+const int ymax = 600;
 const int xmin = 300;
-const int xmax = 800;
+const int xmax = 1000;
 
 
 const int INSIDE = 0; // 0000
@@ -219,13 +219,13 @@ void drawLine(int x1, int y1, int x2, int y2, int color){
 			}
 		}
 	} else {
-		if (dy > 0) {
-			for (int i=0; i <dy; i++){
+		if (y2 > y1) {
+			for (int i=0; i < dy; i++){
 				drawPoint(xn,yn,color);
 				yn++;
 			}
 		} else {
-			for (int i=0; i <dy; i++){
+			for (int i=0; i < abs(dy); i++){
 				drawPoint(xn,yn,color);
 				yn--;
 			}
@@ -234,7 +234,7 @@ void drawLine(int x1, int y1, int x2, int y2, int color){
 	
 }
 
-void DrawRectangle(int xmin, int ymin, int xmax, int ymax, color) {
+void DrawRectangle(int xmin, int ymin, int xmax, int ymax, int color) {
   drawLine(xmin, ymin, xmin, ymax, color);
   drawLine(xmin, ymax, xmax, ymax, color);
   drawLine(xmax, ymin, xmin, ymin, color);
@@ -296,13 +296,19 @@ void drawGaris(int x0, int y0, int x1, int y1, int color){
 	if (accept) {
                // Following functions are left for implementation by user based on
                // their platform (OpenGL/graphics.h etc.)
-               DrawRectangle(xmin, ymin, xmax, ymax);
-               drawLine(x0, y0, x, y, color);
+               drawLine(x0, y0, x1, y1, color);
 	}
 
 }
   
 
+
+
+void drawCheck(int x, int y, int color) {
+	if (ComputeOutCode(x,y) == 0) {
+		drawPoint(x,y,color);
+	}
+}
 
 
 void drawCircle(int r, int xc, int yc, int full, int color){
@@ -327,24 +333,27 @@ void drawCircle(int r, int xc, int yc, int full, int color){
 		int y3=yn*(-1)+0.5*r;
 				
 		//Sisi kanan atas
-		drawPoint(x3+xc,y3+yc,color);
-		drawPoint(-1*y3+xc+0.5*r,-1*x3+yc+0.5*r,color);
+
+		drawCheck(x3+xc,y3+yc,color);
+		drawCheck(-1*y3+xc+0.5*r,-1*x3+yc+0.5*r,color);
 		
 		//Sisi kiri atas
-		drawPoint(x3*(-1)+xc,y3+yc,color);
-		drawPoint(y3+xc-0.5*r,-1*x3+yc+0.5*r,color);
+		drawCheck(x3*(-1)+xc,y3+yc,color);
+		drawCheck(y3+xc-0.5*r,-1*x3+yc+0.5*r,color);
 		
 		if (full==1){
 			//sisi kanan bawah
-			drawPoint(xn+xc,yn+yc+0.5*r,color);
-			drawPoint(yn+xc,xn+yc+0.5*r,color);
+			drawCheck(xn+xc,yn+yc+0.5*r,color);
+			drawCheck(yn+xc,xn+yc+0.5*r,color);
 		
 			//sisi kiri bawah
-			drawPoint(-1*x3+xc,-1*y3+yc+r,color);
-			drawPoint(y3+xc-0.5*r,x3+yc+0.5*r,color);
+			drawCheck(-1*x3+xc,-1*y3+yc+r,color);
+			drawCheck(y3+xc-0.5*r,x3+yc+0.5*r,color);
 		}
 	}
 }
+
+
 
 
 void drawPolygon(int x, int y, int color) {
@@ -357,8 +366,8 @@ void drawPolygon(int x, int y, int color) {
 }
 
 void printBackground (){
-	for (y = 0; y < 762; y++) {
-		for(x = 0; x < 1365; x++) {
+	for (y = 0; y < vinfo.yres_virtual-30; y++) {
+		for(x = 0; x < 1366; x++) {
 			location = (x+vinfo.xoffset) * (vinfo.bits_per_pixel/8) +
 					(y+vinfo.yoffset) * finfo.line_length;
 			 *(fbp + location) = 0;        // Some blue
@@ -368,13 +377,15 @@ void printBackground (){
 		}
 	 }
 
-	 drawPolygon(tx,700, 300);
-	 // for (int i = 0; i < 50; i++){
-		//  int x = rand() % 1360; 
-		//  int y = rand() % 700;
-		//  //printf("(%d, %d)\n", x, y);
-		//  drawPoint(x, y, 50);
-	 // }
+	 //drawPolygon(tx,700, 300);
+	  for (int i = 0; i < 50; i++){
+		  int x = rand() % (xmax-xmin); 
+		  int y = rand() % (ymax-ymin);
+		  x += xmin;
+		  y += ymin;
+		  //printf("(%d, %d)\n", x, y);
+		  drawPoint(x, y, 50);
+	  }
 }
 
 
@@ -461,7 +472,7 @@ void rotateBadan(int rc,int xc, int y, int angle, int color){
 
 void drawAntena(int xc, int rc,int yc, int rj, int color){
 		//Antena UFO
-	drawGaris(xc-45,xc-30,yc-25,yc-15,color);
+	//drawGaris(xc-45,xc-30,yc-25,yc-15,color);
 	drawCircle(rj/2,xc-45,yc-25,1,color);
 	drawCircle(rj/2,xc+45,yc-25,1,color);
 }
@@ -684,14 +695,16 @@ void moveUFO(int rc, int yc, int rj, int sX, int fX, int color){
 		//drawPoint(xc, yc, 50);
 		//drawPoint(ax, ay, 50);
 		//drawPoint(x, y, 100);
+		
+		DrawRectangle(xmin, ymin, xmax, ymax, color);
 		usleep(10000);
 		printBackground();
 
 		if (destroy == 1 || command == 1){
 			drawUFO(xc,rc,yc,rj,color);
-			printBackground();
+			// printBackground();
 			explosionMove(xc,yc+50, 660, 30, rc, rj);
-			
+			DrawRectangle(xmin, ymin, xmax, ymax, color);
 			command = 1;
 			break;
 		}	
