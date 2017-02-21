@@ -37,10 +37,10 @@ int rotatey(int x, int y, int angle, int cx, int cy);
 
 typedef int OutCode;
 
-const int ymin = 100;
-const int ymax = 600;
-const int xmin = 300;
-const int xmax = 1000;
+int ymin = 100;
+int ymax = 600;
+int xmin = 300;
+int xmax = 1000;
 
 
 const int INSIDE = 0; // 0000
@@ -366,7 +366,7 @@ void drawPolygon(int x, int y, int color) {
 }
 
 void printBackground (){
-	for (y = 0; y < vinfo.yres_virtual-30; y++) {
+	for (y = 0; y < 768; y++) {
 		for(x = 0; x < 1366; x++) {
 			location = (x+vinfo.xoffset) * (vinfo.bits_per_pixel/8) +
 					(y+vinfo.yoffset) * finfo.line_length;
@@ -377,7 +377,7 @@ void printBackground (){
 		}
 	 }
 
-	 //drawPolygon(tx,700, 300);
+	 drawPolygon(tx,700, 300);
 	  for (int i = 0; i < 50; i++){
 		  int x = rand() % (xmax-xmin); 
 		  int y = rand() % (ymax-ymin);
@@ -620,9 +620,28 @@ void *controller(void *args){
 				case 'B':
 					// code for arrow down
 					command = 1;
-					break;				
+					break;	
 			}
 		}
+		char c;
+		c = getchar();
+		if (c == 'a'){
+			xmin -= 40;
+			xmax -= 40;
+		}
+		if (c == 'd'){
+			xmin += 40;
+			xmax += 40;
+		}
+		if (c == 'w'){
+			ymin -= 40;
+			ymax -= 40;
+		}
+		if (c == 's'){
+			ymin += 40;
+			ymax += 40;
+		}
+		
 		if(command ==1||destroy==1){
 			break;
 		}
