@@ -33,6 +33,50 @@ int endY = 0;
 int rotatex(int x, int y, int angle, int cx, int cy);
 int rotatey(int x, int y, int angle, int cx, int cy);
 
+
+
+typedef int OutCode;
+
+const int ymin = 300;
+const int ymax = 500;
+const int xmin = 300;
+const int xmax = 800;
+
+
+const int INSIDE = 0; // 0000
+const int LEFT = 1;   // 0001
+const int RIGHT = 2;  // 0010
+const int BOTTOM = 4; // 0100
+const int TOP = 8;    // 1000
+
+// Compute the bit code for a point (x, y) using the clip rectangle
+// bounded diagonally by (xmin, ymin), and (xmax, ymax)
+
+// ASSUME THAT xmax, xmin, ymax and ymin are global constants.
+
+OutCode ComputeOutCode(double x, double y)
+{
+	OutCode code;
+
+	code = INSIDE;          // initialised as being inside of [[clip window]]
+
+	if (x < xmin)           // to the left of clip window
+		code |= LEFT;
+	else if (x > xmax)      // to the right of clip window
+		code |= RIGHT;
+	if (y < ymin)           // below the clip window
+		code |= BOTTOM;
+	else if (y > ymax)      // above the clip window
+		code |= TOP;
+
+	return code;
+}
+
+
+
+//-----------------------------------------------------------------
+//-----------------------------------------------------------------
+
 int check_color(int x, int y, int color) {
 	int same = 0;
 	location = (x+vinfo.xoffset) * (vinfo.bits_per_pixel/8) +
@@ -79,17 +123,17 @@ void set_color(int x, int y, int color) {
 int flood_fill(int x, int y, int target_color, int replacement_color) {
 
 
-	if (target_color == replacement_color) {
-		return 0;
-	} else if (check_color(x, y, target_color) == 0) {
-		return 0;
-	}
+	// if (target_color == replacement_color) {
+	// 	return 0;
+	// } else if (check_color(x, y, target_color) == 0) {
+	// 	return 0;
+	// }
 
-	set_color(x, y, replacement_color);
-	flood_fill(x+1, y, target_color, replacement_color);
-	flood_fill(x-1, y, target_color, replacement_color);
-	flood_fill(x, y+1, target_color, replacement_color);
-	flood_fill(x, y-1, target_color, replacement_color);
+	// set_color(x, y, replacement_color);
+	// flood_fill(x+1, y, target_color, replacement_color);
+	// flood_fill(x-1, y, target_color, replacement_color);
+	// flood_fill(x, y+1, target_color, replacement_color);
+	// flood_fill(x, y-1, target_color, replacement_color);
 	return 0;
 }
 
@@ -128,123 +172,7 @@ void drawPoint(int xn, int yn, int color){
 	 }
 }
 
-  
-
-void drawCircle(int r, int xc, int yc, int full, int color){
-/* r = jari-jari; xc = koordinar X pusat lingkaran;
- * yc= koordinat Y pusat lingkaran;
- * full = 1: lingkaran penuh, 0: setengah lingkaran bgn atas;
- * color= warna garis lingkaran
- * Prosedur untuk ngegambar lingkaran Bresenham*/
- 
-	int xn=0, yn=r;
-	int p = 3-2*r; 
-
-	while (xn<yn){
-		xn++;
-		if (p>=0){
-			yn--;
-			p+=4*(xn-yn)+10;
-		}else{
-			p+=4*(xn)+6;
-		}
-		int x3=xn;
-		int y3=yn*(-1)+0.5*r;
-				
-		//Sisi kanan atas
-		drawPoint(x3+xc,y3+yc,color);
-		drawPoint(-1*y3+xc+0.5*r,-1*x3+yc+0.5*r,color);
-		
-		//Sisi kiri atas
-		drawPoint(x3*(-1)+xc,y3+yc,color);
-		drawPoint(y3+xc-0.5*r,-1*x3+yc+0.5*r,color);
-		
-		if (full==1){
-			//sisi kanan bawah
-			drawPoint(xn+xc,yn+yc+0.5*r,color);
-			drawPoint(yn+xc,xn+yc+0.5*r,color);
-		
-			//sisi kiri bawah
-			drawPoint(-1*x3+xc,-1*y3+yc+r,color);
-			drawPoint(y3+xc-0.5*r,x3+yc+0.5*r,color);
-		}
-	}
-}
-
-void drawLine(int xs, int xf, int ys, int yf, int range, int color){
-/* xs = titik X awal; xf = titik X akhir;
- * ys = titik Y awal; yf = titik Y akhir;
- * range = jarak garis hasil pencerminan. Nilai 0: tidak dicerminkan, 
- * >0: dicerminkan ke kiri, <0 dicerminkan ke kanan; 
- * color = warna garis
- * Prosedur untuk ngegambar garis Bresenham*/ 
-	int xn=xs, yn=ys;
-	int dx=abs(xf-xs);
-	int dy=abs(yf-ys);
-	int p = 2*dy-dx;
-	
-	if(dx!=0){
-		for (int i=0;i<abs(xf-xs);i++){
-			if(xf > xs){
-				xn=xn+1;
-			} else {
-				xn=xn-1;
-			}
-			p=p+2*dy;
-			if (p>=0){
-				yn++;
-				p-=2*dx;
-			}
-			drawPoint(xn,yn,color);
-			if (range!=0) drawPoint(-xn+2*xs-range,yn,color);
-		}
-	} else {
-		for (int i=0; i <dy; i++){
-			drawPoint(xn,yn,color);
-			yn++;
-		}
-	}
-	
-}
-
-void drawPolygon(int x, int y, int color) {
-  drawLine(x, x+50, y, y, 0, color);
-  drawLine(x+50, x+50, y, y+50, 0, color);
-  drawLine(x, x+50, y+50, y+50, 0, color);
-  drawLine(x, x, y, y+50, 0, color);
-
-  flood_fill(x+10, y+10, 0, 100);
-}
-
-void printBackground (){
-	for (y = 0; y < 762; y++) {
-		for(x = 0; x < 1365; x++) {
-			location = (x+vinfo.xoffset) * (vinfo.bits_per_pixel/8) +
-					(y+vinfo.yoffset) * finfo.line_length;
-			 *(fbp + location) = 0;        // Some blue
-			 *(fbp + location + 1) = 0;     // A little green
-			 *(fbp + location + 2) = 0;    // A lot of red
-			 *(fbp + location + 3) = 0; 
-		}
-	 }
-
-	 drawPolygon(tx,700, 300);
-	 for (int i = 0; i < 50; i++){
-		 int x = rand() % 1360; 
-		 int y = rand() % 700;
-		 //printf("(%d, %d)\n", x, y);
-		 drawPoint(x, y, 50);
-	 }
-
-	 // for (int i = 0; i < 50; i++){
-		//  int x = rand() % 1360; 
-		//  int y = rand() % 700;
-		//  //printf("(%d, %d)\n", x, y);
-		//  drawPoint(x, y, 50);
-	 // }
-}
-
-void drawGaris(int x1, int y1, int x2, int y2, int color){
+void drawLine(int x1, int y1, int x2, int y2, int color){
 /* x1 = koordinat x titik pertama; y1 = koordinat y titik pertama;
  * x2 = koordinat x titik kedua; y3 = koordinat y titik kedua;
  * color = warna garis
@@ -291,13 +219,164 @@ void drawGaris(int x1, int y1, int x2, int y2, int color){
 			}
 		}
 	} else {
-		for (int i=0; i <dy; i++){
-			drawPoint(xn,yn,color);
-			yn++;
+		if (dy > 0) {
+			for (int i=0; i <dy; i++){
+				drawPoint(xn,yn,color);
+				yn++;
+			}
+		} else {
+			for (int i=0; i <dy; i++){
+				drawPoint(xn,yn,color);
+				yn--;
+			}
 		}
 	}
 	
 }
+
+void DrawRectangle(int xmin, int ymin, int xmax, int ymax, color) {
+  drawLine(xmin, ymin, xmin, ymax, color);
+  drawLine(xmin, ymax, xmax, ymax, color);
+  drawLine(xmax, ymin, xmin, ymin, color);
+  drawLine(xmax, ymax, xmax, ymin, color);
+}
+
+
+
+void drawGaris(int x0, int y0, int x1, int y1, int color){
+
+	// compute outcodes for P0, P1, and whatever point lies outside the clip rectangle
+	OutCode outcode0 = ComputeOutCode(x0, y0);
+	OutCode outcode1 = ComputeOutCode(x1, y1);
+	bool accept = false;
+
+	while (true) {
+		if (!(outcode0 | outcode1)) { // Bitwise OR is 0. Trivially accept and get out of loop
+			accept = true;
+			break;
+		} else if (outcode0 & outcode1) { // Bitwise AND is not 0. (implies both end points are in the same region outside the window). Reject and get out of loop
+			break;
+		} else {
+			// failed both tests, so calculate the line segment to clip
+			// from an outside point to an intersection with clip edge
+			double x, y;
+
+			// At least one endpoint is outside the clip rectangle; pick it.
+			OutCode outcodeOut = outcode0 ? outcode0 : outcode1;
+
+			// Now find the intersection point;
+			// use formulas y = y0 + slope * (x - x0), x = x0 + (1 / slope) * (y - y0)
+			if (outcodeOut & TOP) {           // point is above the clip rectangle
+				x = x0 + (x1 - x0) * (ymax - y0) / (y1 - y0);
+				y = ymax;
+			} else if (outcodeOut & BOTTOM) { // point is below the clip rectangle
+				x = x0 + (x1 - x0) * (ymin - y0) / (y1 - y0);
+				y = ymin;
+			} else if (outcodeOut & RIGHT) {  // point is to the right of clip rectangle
+				y = y0 + (y1 - y0) * (xmax - x0) / (x1 - x0);
+				x = xmax;
+			} else if (outcodeOut & LEFT) {   // point is to the left of clip rectangle
+				y = y0 + (y1 - y0) * (xmin - x0) / (x1 - x0);
+				x = xmin;
+			}
+
+			// Now we move outside point to intersection point to clip
+			// and get ready for next pass.
+			if (outcodeOut == outcode0) {
+				x0 = x;
+				y0 = y;
+				outcode0 = ComputeOutCode(x0, y0);
+			} else {
+				x1 = x;
+				y1 = y;
+				outcode1 = ComputeOutCode(x1, y1);
+			}
+		}
+	}
+	if (accept) {
+               // Following functions are left for implementation by user based on
+               // their platform (OpenGL/graphics.h etc.)
+               DrawRectangle(xmin, ymin, xmax, ymax);
+               drawLine(x0, y0, x, y, color);
+	}
+
+}
+  
+
+
+
+void drawCircle(int r, int xc, int yc, int full, int color){
+/* r = jari-jari; xc = koordinar X pusat lingkaran;
+ * yc= koordinat Y pusat lingkaran;
+ * full = 1: lingkaran penuh, 0: setengah lingkaran bgn atas;
+ * color= warna garis lingkaran
+ * Prosedur untuk ngegambar lingkaran Bresenham*/
+ 
+	int xn=0, yn=r;
+	int p = 3-2*r; 
+
+	while (xn<yn){
+		xn++;
+		if (p>=0){
+			yn--;
+			p+=4*(xn-yn)+10;
+		}else{
+			p+=4*(xn)+6;
+		}
+		int x3=xn;
+		int y3=yn*(-1)+0.5*r;
+				
+		//Sisi kanan atas
+		drawPoint(x3+xc,y3+yc,color);
+		drawPoint(-1*y3+xc+0.5*r,-1*x3+yc+0.5*r,color);
+		
+		//Sisi kiri atas
+		drawPoint(x3*(-1)+xc,y3+yc,color);
+		drawPoint(y3+xc-0.5*r,-1*x3+yc+0.5*r,color);
+		
+		if (full==1){
+			//sisi kanan bawah
+			drawPoint(xn+xc,yn+yc+0.5*r,color);
+			drawPoint(yn+xc,xn+yc+0.5*r,color);
+		
+			//sisi kiri bawah
+			drawPoint(-1*x3+xc,-1*y3+yc+r,color);
+			drawPoint(y3+xc-0.5*r,x3+yc+0.5*r,color);
+		}
+	}
+}
+
+
+void drawPolygon(int x, int y, int color) {
+  drawGaris(x, y, x+50, y, color);
+  drawGaris(x+50, y, x+50, y+50, color);
+  drawGaris(x, y+50, x+50, y+50, color);
+  drawGaris(x, y, x, y+50, color);
+
+  flood_fill(x+10, y+10, 0, 100);
+}
+
+void printBackground (){
+	for (y = 0; y < 762; y++) {
+		for(x = 0; x < 1365; x++) {
+			location = (x+vinfo.xoffset) * (vinfo.bits_per_pixel/8) +
+					(y+vinfo.yoffset) * finfo.line_length;
+			 *(fbp + location) = 0;        // Some blue
+			 *(fbp + location + 1) = 0;     // A little green
+			 *(fbp + location + 2) = 0;    // A lot of red
+			 *(fbp + location + 3) = 0; 
+		}
+	 }
+
+	 drawPolygon(tx,700, 300);
+	 // for (int i = 0; i < 50; i++){
+		//  int x = rand() % 1360; 
+		//  int y = rand() % 700;
+		//  //printf("(%d, %d)\n", x, y);
+		//  drawPoint(x, y, 50);
+	 // }
+}
+
 
 void drawExplosion(int xc, int yc, int color){
 	for (int i=1;i<3;i++) {
@@ -382,7 +461,7 @@ void rotateBadan(int rc,int xc, int y, int angle, int color){
 
 void drawAntena(int xc, int rc,int yc, int rj, int color){
 		//Antena UFO
-	drawLine(xc-45,xc-30,yc-25,yc-15,-90,color);
+	drawGaris(xc-45,xc-30,yc-25,yc-15,color);
 	drawCircle(rj/2,xc-45,yc-25,1,color);
 	drawCircle(rj/2,xc+45,yc-25,1,color);
 }
@@ -489,9 +568,9 @@ void drawBullet(int xf, int yf){
 	int tempy = y-10;
 	int tempx = x + (deltax*-1);
 	
-	drawLine(x,tempx,y,tempy, 0,50);
+	drawGaris(x,y,tempx,tempy, 50);
 	usleep(100000);
-	drawLine(x,tempx,y,tempy,0,0);
+	drawGaris(x,y,tempx,tempy,0);
 	
 	while(tempy > yf && x > 0 && x < 1362) {
 		//not_collision = check_color(tempx+deltax, tempy-15, 100);
@@ -499,9 +578,9 @@ void drawBullet(int xf, int yf){
 			destroy = 1;
 			break;
 		}
-		drawLine(x+deltax,tempx+deltax,y-10,tempy-10, 0,50);
+		drawGaris(x+deltax,y-10,tempx+deltax,tempy-10, 50);
 		usleep(10000);
-		drawLine(x+deltax,tempx+deltax,y-10,tempy-10,0,0);
+		drawGaris(x+deltax,y-10,tempx+deltax,tempy-10,0);
 		x = x+deltax;
 		tempx = tempx+deltax;
 		y = y -10;
