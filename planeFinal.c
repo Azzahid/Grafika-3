@@ -542,6 +542,12 @@ void explosionMove(int xc, int yc, int yf, int color, int rc, int rj){
 			ybody++;
 		}
 		
+		ymin = y-80;
+		ymax = y+80;
+		xmax = xc+130;
+		xmin= xc-130;
+		DrawRectangle(xmin, ymin, xmax, ymax, color);
+		
 		drawAtap(xc+200+xsum,rc,y+ysum,rj,color+100);
 		if(y+ysum > vinfo.yres/2){
 			yzig = -3;
@@ -720,6 +726,10 @@ void moveUFO(int rc, int yc, int rj, int sX, int fX, int color){
 		printBackground();
 
 		if (destroy == 1 || command == 1){
+			ymin = yc-80;
+			ymax = yc+80;
+			xmax = xc+80;
+			xmin= xc-80;
 			drawUFO(xc,rc,yc,rj,color);
 			// printBackground();
 			explosionMove(xc,yc+50, 660, 30, rc, rj);
